@@ -4,12 +4,14 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import VueLazyLoad from 'vue-lazyload';
+import infiniteScroll from 'vue-infinite-scroll';
 Vue.config.productionTip = false;
 
 import './asset/css/base.css';
 import './asset/css/checkout.css';
 import './asset/css/product.css';
 
+Vue.use(infiniteScroll);
 Vue.use(VueLazyLoad, {
   loading: 'static/loading-svg/loading-bars.svg'
 });

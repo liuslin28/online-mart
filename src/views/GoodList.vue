@@ -18,10 +18,9 @@
           <div id="filter" class="filter stopPop" v-bind:class="{'filterby-show':filterBy}">
             <dl class="filter-price">
               <dt>Price:</dt>
-              <dd>
-              </dd>
+              <dd><a href="javascript:void(0)" @click="setPriceFilter('all')" v-bind:class="{'cur':priceCheck=='all'}">All</a></dd>
               <dd v-for="(price,index) in priceFilter">
-                <a href="javascript:void(0)"  @click = "setPriceFilter(index)" v-bind:class="{'cur':priceCheck == 'index'}">{{price.startPrice}} - {{price.endPrice}}</a>
+                <a href="javascript:void(0)"  @click="setPriceFilter(index)" v-bind:class="{'cur':priceCheck=='index'}">{{price.startPrice}} - {{price.endPrice}}</a>
               </dd>
             </dl>
           </div>
@@ -30,17 +29,20 @@
               <ul>
                 <li v-for="(item,index) in goodsList">
                   <div class="pic">
-                    <a href="#"><img v-lazy="'/static/'+item.productImg" alt=""></a>
+                    <a href="#"><img v-lazy="'/static/'+item.productImage" alt=""></a>
                   </div>
-                  <div class="info">
-                    <div class="info-name">{{item.productName}}</div>
-                    <div class="info-price">{{item.salePrice}}</div>
+                  <div class="main">
+                    <div class="name">{{item.productName}}</div>
+                    <div class="price">{{item.salePrice}}</div>
                     <div class="btn-area">
-                      <a href="javascript:void(0)" class="btn btn--m">加入购物车</a>
+                      <a href="javascript:void(0)" class="btn btn--m" @click="addCart(item.productId)">加入购物车</a>
                     </div>
                   </div>
                 </li>
               </ul>
+              <div class="view-more-normal" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="20">
+                <img src="./../asset/loading-spinning-bubbles.svg" v-show="loading">
+              </div>
             </div>
           </div>
         </div>
@@ -69,6 +71,10 @@
           priceFilter: [
             {
               startPrice: '0',
+              endPrice: '100'
+            },
+            {
+              startPrice: '100',
               endPrice: '500'
             },
             {
@@ -77,14 +83,17 @@
             },
             {
               startPrice: '1000',
-              endPrice: '2000'
+              endPrice: '5000'
             }
           ],
 //          选中的价格
           priceCheck: 'all',
 //          Filter的显示
           filterBy: false,
-          overLayFlag: false
+          overLayFlag: false,
+//          滚动页面设置
+          busy: true,
+          loading: false
         };
     },
     components: {
@@ -97,37 +106,68 @@
     },
     methods: {
 //        数据获取
-        getGoodsList() {
+        getGoodsList(flag) {
           var param = {
              page: this.page,
              pageSize: this.pageSize,
-             sort: this.sortFlag ? 1 : -1
+             sort: this.sortFlag ? 1 : -1,
+             priceLevel: this.priceCheck
           };
-          console.log(param);
+          this.loading = true;
           axios.get('/goods', {params: param}).then((response) => {
-            console.log(response);
             let res = response.data;
             if (res.status === '0') {
-              this.goodsList = res.result.list;
+                if (flag) {
+                  this.goodsList = this.goodsList.concat(res.result.list);
+                  if (res.result.count === 0) {
+                    this.busy = true;
+                  } else {
+                    this.busy = false;
+                  }
+                } else {
+                  this.goodsList = res.result.list;
+                  this.busy = false;
+                }
             } else {
               this.goodsList = [];
-              console.log(this.sort);
             }
           });
         },
+//        价格排序
         sortGoods() {
             this.sortFlag = !this.sortFlag;
-
             this.page = 1;
             this.getGoodsList();
+        },
+//        滚动加载
+        loadMore() {
+          this.busy = true;
+          setTimeout(() => {
+            this.page++;
+            this.getGoodsList(true);
+          }, 500);
         },
         showFilterPop() {
             this.filterBy = true;
             this.overLayFlag = true;
         },
+//        价格分段查询
         setPriceFilter(index) {
           this.priceCheck = index;
-          this.closePop();
+          this.page = 1;
+          this.getGoodsList();
+        },
+//        添加购物车
+        addCart(productId) {
+            axios.post('/goods/addCart', {
+                productId: productId
+            }).then(res => {
+                if (res.status === 0) {
+                    alert('哇哈哈哈哈');
+                } else {
+                  alert('msg:' + res.msg);
+                }
+            });
         },
         closePop() {
           this.filterBy = false;
