@@ -28,25 +28,23 @@
       </div>
       <div class="navbar-right-container" style="display: flex;">
         <div class="navbar-menu-container">
-          <span class="navbar-link" v-text="nickName" v-if="nickName"></span>
-          <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!nickName">Login</a>
-          <a href="javascript:void(0)" class="navbar-link" @click="logOut" v-else>Logout</a>
-          <div class="navbar-cart-container">
-            <span class="navbar-cart-count" v-text="cartCount" v-if="cartCount"></span>
-            <a class="navbar-link navbar-cart-link" href="/#/cart">
-              <svg class="navbar-cart-logo">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
-              </svg>
-            </a>
-          </div>
+          <span v-text="nickName" v-if="nickName"></span>
+          <a href="javascript:void(0)" @click="logModalFlag = true" v-if="!nickName">登录</a>
+          <a href="javascript:void(0)" @click="logModalFlag = true" v-if="nickName">登出</a>
+          <a href="javascript:void(0)">
+            <svg class="navbar-cart-logo">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
+            </svg>
+          </a>
         </div>
       </div>
     </div>
-    <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show':loginModalFlag}">
+    <!--登录框-->
+    <div class="md-modal modal-msg md-modal-transition" v-bind:class="{'md-show': logModalFlag}">
       <div class="md-modal-inner">
         <div class="md-top">
-          <div class="md-title">Login in</div>
-          <button class="md-close" @click="loginModalFlag=false">Close</button>
+          <div class="md-title">即将进入海贼船王国</div>
+          <button class="md-close" @click="logModalFlag = false">Close</button>
         </div>
         <div class="md-content">
           <div class="confirm-tips">
@@ -65,21 +63,53 @@
             </ul>
           </div>
           <div class="login-wrap">
-            <a href="javascript:;" class="btn-login" @click="login">登  录</a>
+            <a href="javascript:;" class="btn-login" @click="logIn">登  录</a>
           </div>
         </div>
       </div>
     </div>
-    <div class="md-overlay" v-if="loginModalFlag" @click="loginModalFlag=false"></div>
+    <div class="md-overlay" v-if="logModalFlag" @click="logModalFlag = false"></div>
   </header>
 
 </template>
 <script>
+  import './../asset/css/login.css';
+  import axios from 'axios';
+
   export default{
     data() {
       return {
-        msg: 'hello vue'
+        userName: '',
+        userPwd: '',
+        errorTip: false,
+        logModalFlag: false,
+//        登录的用户名
+        nickName: ''
       };
+    },
+    methods: {
+        logIn() {
+          //          如果未输入账号及密码
+          if (!this.userName || !this.userPwd) {
+            this.errorTip = true;
+            return;
+          }
+          var param = {
+              userName: this.userName,
+              userPwd: this.userPwd
+            };
+          axios.post('/users/login', {params: param}).then((response) => {
+              let res = response.data;
+              if (res.status === '0') {
+                  this.errorTip = false;
+                  this.logModalFlag = false;
+                  this.nickName = res.result.userName;
+                  console.log('wahhah ');
+              } else {
+                  this.errorTip = true;
+              }
+          });
+        }
     }
   };
 </script>
