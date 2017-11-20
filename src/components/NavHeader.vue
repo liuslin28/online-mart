@@ -30,7 +30,7 @@
         <div class="navbar-menu-container">
           <span v-text="nickName" v-if="nickName"></span>
           <a href="javascript:void(0)" @click="logModalFlag = true" v-if="!nickName">登录</a>
-          <a href="javascript:void(0)" @click="logModalFlag = true" v-if="nickName">登出</a>
+          <a href="javascript:void(0)" @click="logOut" v-else>登出</a>
           <a href="javascript:void(0)">
             <svg class="navbar-cart-logo">
               <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
@@ -94,11 +94,10 @@
             this.errorTip = true;
             return;
           }
-          var param = {
-              userName: this.userName,
-              userPwd: this.userPwd
-            };
-          axios.post('/users/login', {params: param}).then((response) => {
+          axios.post('/users/login', {
+            userName: this.userName,
+            userPwd: this.userPwd
+          }).then((response) => {
               let res = response.data;
               if (res.status === '0') {
                   this.errorTip = false;
@@ -109,7 +108,15 @@
                   this.errorTip = true;
               }
           });
-        }
+        },
+      logOut() {
+        axios.post('/users/logout').then((response) => {
+          let res = response.data;
+          if (res.status === '0') {
+              this.nickName = '';
+          }
+        });
+      }
     }
   };
 </script>
