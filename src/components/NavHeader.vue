@@ -58,7 +58,7 @@
               </li>
               <li class="regi_form_input noMargin">
                 <i class="icon IconPwd"></i>
-                <input type="password" tabindex="2"  name="password" v-model="userPwd" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="Password" @keyup.enter="login">
+                <input type="password" tabindex="2"  name="password" v-model="userPwd" class="regi_login_input regi_login_input_left login-input-no input_text" placeholder="Password" @keyup.enter="logIn">
               </li>
             </ul>
           </div>
@@ -81,13 +81,27 @@
       return {
         userName: '',
         userPwd: '',
+//        输入信息错误提示
         errorTip: false,
         logModalFlag: false,
 //        登录的用户名
         nickName: ''
       };
     },
+    mounted() {
+        this.checkLogIn();
+    },
     methods: {
+        checkLogIn() {
+            axios.get('/users/checkLogin').then((response) => {
+                let res = response.data;
+                if (res.status === '0') {
+                    this.nickName = res.result.userName;
+                } else {
+                    this.nickName = '';
+                }
+          });
+        },
         logIn() {
           //          如果未输入账号及密码
           if (!this.userName || !this.userPwd) {

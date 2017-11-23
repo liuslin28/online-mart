@@ -1,7 +1,7 @@
 <template>
   <div id="GoodList">
-    <NavHeader></NavHeader>
-    <NavBread><span>请输入查找的商品</span></NavBread>
+    <nav-header></nav-header>
+    <nav-bread><span>请输入查找的商品</span></nav-bread>
     <div class="accessory-result-page accessory-page">
       <!--内容显示区域-->
       <div class="container">
@@ -9,7 +9,9 @@
         <div class="filter-nav">
           <span class="sortby">Sort by:</span>
           <a href="javascript:void(0)" class="default cur">Default</a>
-          <a href="javascript:void(0)" class="price"  @click="sortGoods()">Price<svg class="icon icon-arrow-short"></svg></a>
+          <a href="javascript:void(0)" class="price" v-bind:class="{'sort-up':sortFlag}" @click="sortGoods()">Price
+            <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg>
+          </a>
           <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter By</a>
         </div>
         <!--搜索结果框-->
@@ -49,13 +51,35 @@
       </div>
     </div>
     <div class="md-overlay" v-show="overLayFlag" @click="closePop"></div>
-    <NavFooter></NavFooter>
+    <!--模态框-->
+    <modal v-bind:mdShow="mdShow" v-on:close="closeModal">
+      <p slot="message">
+          请先登录，否则无法加入购物车中！
+      </p>
+      <div slot="btnGroup">
+        <a href="javascript:;" class="btn btn--m" @click="mdShow = false">关闭</a>
+      </div>
+    </modal>
+    <modal v-bind:mdShow="mdShowCart" v-on:close="closeModal">
+      <p slot="message">
+        <svg class="icon-status-ok">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-status-ok"></use>
+        </svg>
+        <span>加入购物车成功!</span>
+      </p>
+      <div slot="btnGroup">
+        <a href="javascript:;" class="btn btn--m" @click="mdShowCart = false">继续购物</a>
+        <router-link class="btn btn--m btn--red" to="/cart">查看购物车</router-link>
+      </div>
+    </modal>
+    <nav-footer></nav-footer>
   </div>
 </template>
 <script>
   import NavHeader from './../components/NavHeader';
   import NavFooter from './../components/NavFooter';
   import NavBread from './../components/NavBread';
+  import Modal from './../components/Modal';
   import axios from 'axios';
 
   export default{
@@ -93,13 +117,17 @@
           overLayFlag: false,
 //          滚动页面设置
           busy: true,
-          loading: false
+          loading: false,
+//          模态框
+          mdShow: false,
+          mdShowCart: false
         };
     },
     components: {
       NavHeader,
       NavFooter,
-      NavBread
+      NavBread,
+      Modal
     },
     mounted() {
         this.getGoodsList();
@@ -114,7 +142,7 @@
              priceLevel: this.priceCheck
           };
           this.loading = true;
-          axios.get('/goods', {params: param}).then((response) => {
+          axios.get('/goods/list', {params: param}).then((response) => {
             let res = response.data;
             if (res.status === '0') {
                 if (flag) {
@@ -161,13 +189,19 @@
         addCart(productId) {
             axios.post('/goods/addCart', {
                 productId: productId
-            }).then(res => {
-                if (res.status === 0) {
-                    alert('哇哈哈哈哈');
+            }).then((response) => {
+                var res = response.data;
+                if (res.status === '0') {
+                  alert('哇哈哈哈哈');
+                  this.mdShowCart = true;
                 } else {
-                  alert('msg:' + res.msg);
+                  this.mdShow = true;
                 }
             });
+        },
+        closeModal() {
+          this.mdShow = false;
+          this.mdShowCart = false;
         },
         closePop() {
           this.filterBy = false;
@@ -177,5 +211,28 @@
   };
 </script>
 <style>
-
+  .sort-up{
+    transform: rotate(180deg);
+    transition:all .3s ease-out;
+  }
+  .icon-arrow-short  {
+    width: 11px;
+    height: 11px;
+    transition: all .3s ease-out;
+  }
+  .btn{
+    display: inline-block;
+    width: 100%;
+    padding: 0 10px;
+    text-align: center;
+    color: #d1cc6f;
+    height: 40px;
+    line-height: 40px;
+    border: 1px solid #d1434a;
+    margin-top: 10px;
+  }
+  .btn:hover{
+    background-color: #e3ee77;
+    transition: all .3s ease-out;
+  }
 </style>
