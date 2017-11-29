@@ -57,7 +57,7 @@
               </ul>
             </div>
             <ul class="cart-item-list">
-              <li>
+              <li v-for="item in cartList">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
                     <a href="javascipt:;" class="checkbox-btn item-check-btn">
@@ -67,32 +67,32 @@
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <!--<img v-lazy="'/static/'+item.productImage" >-->
+                    <img v-lazy="'/static/'+item.productImage" v-bind:alt="item.productName">
                   </div>
                   <div class="cart-item-title">
-                    <div class="item-name">item.productName</div>
+                    <div class="item-name">{{item.productName}}</div>
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">item.salePrice|currency('$')</div>
+                  <div class="item-price">{{item.salePrice}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <a class="input-sub">-</a>
-                        <span class="select-ipt">item.productNum</span>
-                        <a class="input-add">+</a>
+                        <a class="input-sub" @click="editCart('minu',item)">-</a>
+                        <span class="select-ipt">{{item.productNum}}</span>
+                        <a class="input-add" @click="editCart('add',item)">+</a>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">(item.productNum*item.salePrice)|currency('$')</div>
+                  <div class="item-price-total">{{(item.productNum*item.salePrice)}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn">
+                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item.productId)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -117,7 +117,7 @@
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                Item total: <span class="total-price">totalPrice|currency('$')</span>
+                Item total: <span class="total-price">{{totalPrice|currency('$')}}</span>
               </div>
               <div class="btn-wrap">
                 <a class="btn btn--red">Checkout</a>
@@ -127,6 +127,13 @@
         </div>
       </div>
     </div>
+    <Modal :mdShow="modalConfirm" @close="closeModal">
+      <p slot="message">是否要删除此件商品？</p>
+      <div slot="btnGroup">
+        <a class="btn btn--m" href="javascript:;" @click="delCart">确认</a>
+        <a class="btn btn--m btn--red" href="javascript:;" @click="modalConfirm = false">关闭</a>
+      </div>
+    </Modal>
     <nav-footer></nav-footer>
   </div>
 
@@ -135,14 +142,15 @@
   import NavHeader from './../components/NavHeader';
   import NavFooter from './../components/NavFooter';
   import NavBread from './../components/NavBread';
-//  import Modal from './../components/Modal';
+  import Modal from './../components/Modal';
   import axios from 'axios';
   import './../asset/css/checkout.css';
 
   export default{
     data() {
       return {
-        cartList: []
+        cartList: [],
+        modalConfirm: false
       };
     },
     mounted() {
@@ -151,13 +159,53 @@
     components: {
       NavHeader,
       NavFooter,
-      NavBread
+      NavBread,
+      Modal
     },
     methods: {
         init() {
             axios.get('/users/cartlist').then((response) => {
                 let res = response.data;
                 this.cartList = res.result;
+            });
+        },
+        delCartConfirm(productId) {
+              this.productId = productId;
+              this.modalConfirm = true;
+        },
+        closeModal() {
+            this.modalConfirm = false;
+        },
+        delCart() {
+            axios.post('/users/cartDel', {
+                productId: this.productId
+            }).then((response) => {
+                let res = response.data;
+                if (res.status === '0') {
+                    this.modalConfirm = false;
+                    this.init();
+                }
+            });
+        },
+        editCart(flag, item) {
+            if (flag === 'add') {
+                item.productNum++;
+            } else if (flag === 'minu') {
+                 if (item.productNum > 1) {
+                    item.productNum--;
+                 } else {
+                    item.productNum = 1;
+                 }
+            }
+            axios.post('/users/cartEdit', {
+                productId: item.productId,
+                productNum: item.productNum
+            }).then((response) => {
+              let res = response.data;
+              console.log(res);
+              if (res.status === '0') {
+
+              }
             });
         }
     }

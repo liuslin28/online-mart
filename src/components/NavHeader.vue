@@ -96,7 +96,7 @@
             axios.get('/users/checkLogin').then((response) => {
                 let res = response.data;
                 if (res.status === '0') {
-                    this.nickName = res.result.userName;
+                    this.nickName = res.result;
                 } else {
                     this.nickName = '';
                 }
