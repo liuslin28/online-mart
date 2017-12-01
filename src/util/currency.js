@@ -17,7 +17,7 @@ export function currency (value, currency, decimals) {
     ? stringified.slice(-1 - decimals)
     : '';
   var sign = value < 0 ? '-' : '';
-  return sign + currency + head +
+  return sign + head +
     _int.slice(i).replace(digitsRE, '$1,') +
-    _float;
+    _float + currency;
 }

@@ -31,11 +31,11 @@
           <span v-text="nickName" v-if="nickName"></span>
           <a href="javascript:void(0)" @click="logModalFlag = true" v-if="!nickName">登录</a>
           <a href="javascript:void(0)" @click="logOut" v-else>登出</a>
-          <a href="javascript:void(0)">
+          <router-link v-bind:to="{path:'cart'}">
             <svg class="navbar-cart-logo">
               <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
             </svg>
-          </a>
+          </router-link>
         </div>
       </div>
     </div>

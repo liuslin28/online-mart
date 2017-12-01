@@ -47,7 +47,7 @@
           <div class="check-step">
             <ul>
               <li class="cur"><span>选择</span> 地址</li>
-              <li><span>确认</span> 订单</li>
+              <li><span>订单</span> 确认</li>
               <li><span>订单</span> 付款</li>
               <li><span>订单</span> 浏览</li>
             </ul>

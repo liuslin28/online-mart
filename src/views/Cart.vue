@@ -49,11 +49,11 @@
           <div class="cart-item">
             <div class="cart-item-head">
               <ul>
-                <li>Items</li>
-                <li>Price</li>
-                <li>Quantity</li>
-                <li>Subtotal</li>
-                <li>Edit</li>
+                <li>商品</li>
+                <li>价格</li>
+                <li>数量</li>
+                <li>总计</li>
+                <li>编辑</li>
               </ul>
             </div>
             <ul class="cart-item-list">
@@ -88,7 +88,7 @@
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">{{(item.productNum*item.salePrice)}}</div>
+                  <div class="item-price-total">{{(item.productNum*item.salePrice) | currency('元')}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
@@ -111,13 +111,13 @@
                   <span class="checkbox-btn item-check-btn" v-bind:class="{'check':checkAllFlag}">
                       <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
                   </span>
-                  <span>Select all</span>
+                  <span>全选</span>
                 </a>
               </div>
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                Item total: <span class="total-price">{{totalPrice | currency('$')}}</span>
+                商品总价: <span class="total-price">{{totalPrice | currency('元')}}</span>
               </div>
               <div class="btn-wrap">
                 <a class="btn btn--red" v-bind:class="{'btn--dis':checkedCount==0}" @click="checkOut">Checkout</a>
