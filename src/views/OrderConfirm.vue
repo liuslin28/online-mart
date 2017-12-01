@@ -178,7 +178,7 @@
                  let res = response.data;
                  if (res.status === '0') {
                      this.$router.push({
-                       path: '/orderSuc?orderId=' + res.result.orderId
+                       path: '/ordersuccess?orderId=' + res.result.orderId
                      });
                  }
               });
