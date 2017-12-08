@@ -55,7 +55,7 @@
 
           <!-- address list -->
           <div class="page-title-normal checkout-title">
-            <h2><span>Shipping address</span></h2>
+            <h2><span>配送地址</span></h2>
           </div>
           <div class="addr-list-wrap">
             <div class="addr-list">
@@ -100,16 +100,16 @@
 
           <!-- shipping method-->
           <div class="page-title-normal checkout-title">
-            <h2><span>Shipping method</span></h2>
+            <h2><span>配送方法</span></h2>
           </div>
           <div class="shipping-method-wrap">
             <div class="shipping-method">
               <ul>
                 <li class="check">
-                  <div class="name">Standard shipping</div>
-                  <div class="price">Free</div>
+                  <div class="name">普通物流</div>
+                  <div class="price">免运费</div>
                   <div class="shipping-tips">
-                    <p>Once shipped，Order should arrive in the destination in 1-7 business days</p>
+                    <p>下单成功后，商品将于七日内运达。</p>
                   </div>
                 </li>
               </ul>
@@ -200,7 +200,7 @@
               this.addressId = addressId;
           },
           delDefault() {
-                axios.post('/users/delDefalut', {
+                axios.post('/users/delDefault', {
                    addressId: this.addressId
                 }).then((response) => {
                     let res = response.data;

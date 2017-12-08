@@ -92,7 +92,7 @@
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item.productId)">
+                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -158,11 +158,7 @@
     },
     computed: {
       checkAllFlag() {
-          if (this.checkedCount === this.cartList.lenght) {
-              return true;
-          } else {
-              return false;
-          }
+        return this.checkedCount === this.cartList.length;
       },
       checkedCount() {
           let i = 0;
@@ -196,8 +192,8 @@
                 this.cartList = res.result;
             });
         },
-        delCartConfirm(productId) {
-              this.productId = productId;
+        delCartConfirm(item) {
+              this.delItem = item;
               this.modalConfirm = true;
         },
         closeModal() {
@@ -205,12 +201,13 @@
         },
         delCart() {
             axios.post('/users/cartDel', {
-                productId: this.productId
+                productId: this.delItem.productId
             }).then((response) => {
                 let res = response.data;
                 if (res.status === '0') {
                     this.modalConfirm = false;
                     this.init();
+                    this.$store.commit('updateCartCount', -this.delItem.productNum);
                 }
             });
         },
@@ -231,11 +228,11 @@
                 productNum: item.productNum,
                 checked: item.checked
             }).then((response) => {
-              let res = response.data;
-              console.log(res);
-              if (res.status === '0') {
-
-              }
+                let res = response.data;
+                console.log(res);
+                if (res.status === '0') {
+                   this.$store.commit('updateCartCount', flag === 'add' ? 1 : -1);
+                }
             });
         },
         toggleCheckAll() {
@@ -244,7 +241,7 @@
                 item.checked = flag ? '1' : '0';
             });
             axios.post('/users/cartCheckAll', {
-                checkAll: this.checkAllFlag
+                checkAll: flag
             }).then((response) => {
                 let res = response.data;
                 if (res.status === '0') {

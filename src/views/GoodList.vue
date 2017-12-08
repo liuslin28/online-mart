@@ -135,7 +135,7 @@
     methods: {
 //        数据获取
         getGoodsList(flag) {
-          var param = {
+          let param = {
              page: this.page,
              pageSize: this.pageSize,
              sort: this.sortFlag ? 1 : -1,
@@ -190,10 +190,10 @@
             axios.post('/goods/addCart', {
                 productId: productId
             }).then((response) => {
-                var res = response.data;
+                let res = response.data;
                 if (res.status === '0') {
-                  alert('哇哈哈哈哈');
                   this.mdShowCart = true;
+                  this.$store.commit('updateCartCount', 1);
                 } else {
                   this.mdShow = true;
                 }

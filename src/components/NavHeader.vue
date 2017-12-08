@@ -28,14 +28,17 @@
       </div>
       <div class="navbar-right-container" style="display: flex;">
         <div class="navbar-menu-container">
-          <span v-text="nickName" v-if="nickName"></span>
-          <a href="javascript:void(0)" @click="logModalFlag = true" v-if="!nickName">登录</a>
-          <a href="javascript:void(0)" @click="logOut" v-else>登出</a>
-          <router-link v-bind:to="{path:'cart'}">
-            <svg class="navbar-cart-logo">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
-            </svg>
-          </router-link>
+          <span class="navbar-link" v-text="nickName" v-if="nickName"></span>
+          <a href="javascript:void(0)" class="navbar-link" @click="logModalFlag = true" v-if="!nickName">登录</a>
+          <a href="javascript:void(0)" class="navbar-link" @click="logOut" v-else>登出</a>
+          <div>
+            <span  class="navbar-cart-count" v-if="cartCount">{{cartCount}}</span>
+            <router-link v-bind:to="{path:'cart'}">
+              <svg class="navbar-cart-logo">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
+              </svg>
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -83,10 +86,18 @@
         userPwd: '',
 //        输入信息错误提示
         errorTip: false,
-        logModalFlag: false,
+        logModalFlag: false
 //        登录的用户名
-        nickName: ''
+//        nickName: ''
       };
+    },
+    computed: {
+        nickName() {
+            return this.$store.state.nickName;
+        },
+        cartCount() {
+          return this.$store.state.cartCount;
+        }
     },
     mounted() {
         this.checkLogIn();
@@ -95,28 +106,33 @@
         checkLogIn() {
             axios.get('/users/checkLogin').then((response) => {
                 let res = response.data;
+//                let path = this.$route.pathname;
                 if (res.status === '0') {
-                    this.nickName = res.result;
+                    this.$store.commit('updateUserInfo', res.result);
+//                    this.nickName = res.result;
+                    this.logModalFlag = false;
                 } else {
-                    this.nickName = '';
-                }
+//                    if (this.$route.path !== '/goods') {
+//                        this.$router.push('/goods');
+                      console.log('暂空');
+                    }
           });
         },
         logIn() {
           //          如果未输入账号及密码
           if (!this.userName || !this.userPwd) {
-            this.errorTip = true;
-            return;
+              this.errorTip = true;
+              return;
           }
           axios.post('/users/login', {
-            userName: this.userName,
-            userPwd: this.userPwd
+              userName: this.userName,
+              userPwd: this.userPwd
           }).then((response) => {
               let res = response.data;
               if (res.status === '0') {
                   this.errorTip = false;
                   this.logModalFlag = false;
-                  this.nickName = res.result.userName;
+                  this.$store.commit('updateUserInfo', res.result.userName);
                   console.log('wahhah ');
               } else {
                   this.errorTip = true;
@@ -127,8 +143,15 @@
         axios.post('/users/logout').then((response) => {
           let res = response.data;
           if (res.status === '0') {
-              this.nickName = '';
+              this.$store.commit('updateUserInfo', '');
           }
+        });
+      },
+//      查询购物车商品数量
+      getCartCount() {
+        axios.get('users/getCartCount').then((response) => {
+            let res = response.data;
+            this.$store.commit('initCartCount', res.result);
         });
       }
     }
